@@ -89,7 +89,3 @@ function cleanArgs(cmd) {
   });
   return args;
 }
-
-// 待学
-// https://juejin.cn/post/6975687741761650695
-// https://juejin.cn/post/6966501104808886280
