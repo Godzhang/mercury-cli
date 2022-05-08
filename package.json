@@ -26,6 +26,7 @@
     "lru-cache": "^7.9.0",
     "minimist": "^1.2.6",
     "ora": "^5.4.1",
+    "request-promise-native": "^1.0.9",
     "semver": "^7.3.7",
     "slash": "^4.0.0",
     "validate-npm-package-name": "^4.0.0"

@@ -47,6 +47,8 @@ program
     "Skip prompts and use saved or remote preset"
   )
   .option("-d, --default", "Skip prompts and use default preset")
+  .option("--no-git", "exec 'git init' after create project")
+  .option("--skipget-started", "need to start the project?")
   .action((name, cmd) => {
     const options = cleanArgs(cmd);
     if (minimist(process.argv.slice(3))._.length > 1) {
