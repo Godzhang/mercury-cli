@@ -35,6 +35,7 @@ if (semver.satisfies(process.version, "12.x")) {
 // 开始处理命令
 const { program } = require("commander");
 const minimist = require("minimist");
+const leven = require("../lib/utils/leven");
 
 program.version(pkg.version).usage("<command> [options]");
 
@@ -47,8 +48,9 @@ program
     "Skip prompts and use saved or remote preset"
   )
   .option("-d, --default", "Skip prompts and use default preset")
-  .option("--no-git", "exec 'git init' after create project")
-  .option("--skipget-started", "need to start the project?")
+  .option("-n, --no-git", "exec 'git init' after create project")
+  .option("-f, --force", "Overwrite target directory if it exists")
+  .option("--skipGetStarted", 'skip displaying "Get started" instructions')
   .action((name, cmd) => {
     const options = cleanArgs(cmd);
     if (minimist(process.argv.slice(3))._.length > 1) {
@@ -61,11 +63,14 @@ program
     require("../lib/create")(name, options);
   });
 
-// program.arguments("<command>").action((cmd) => {
-//   program.outputHelp();
-//   console.log(`   ` + chalk.red(`Unknown command ${chalk.yellow(cmd)}`));
-//   console.log();
-// });
+program.on("command:*", ([cmd]) => {
+  program.outputHelp();
+  console.log();
+  console.log(`  ` + chalk.red(`Unknown command ${chalk.yellow(cmd)}.`));
+  console.log();
+  suggestCommands(cmd);
+  process.exitCode = 1;
+});
 
 // 自定义错误提示信息
 const enhanceErrorMessages = require("../lib/utils/enhanceErrorMessages");
@@ -90,4 +95,22 @@ function cleanArgs(cmd) {
     }
   });
   return args;
+}
+
+function suggestCommands(unknowcCommand) {
+  const availiableCommands = program.commands.map((cmd) => cmd._name);
+
+  let suggestion;
+
+  availiableCommands.forEach((cmd) => {
+    const isBestMatch =
+      leven(cmd, unknowcCommand) < leven(suggestion || "", unknowcCommand);
+    if (leven(cmd, unknowcCommand) < 3 && isBestMatch) {
+      suggestion = cmd;
+    }
+  });
+
+  if (suggestion) {
+    console.log(`  ` + chalk.red(`Did you mean ${chalk.yellow(suggestion)}?`));
+  }
 }
